@@ -1,0 +1,7 @@
+---
+name: 'Document Context'
+focus: 'Focus to this document'
+parent: 'Parent Documents'
+children: 'Child Documents'
+siblings: 'Sibling Documents'
+no: 'Empty'

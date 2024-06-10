@@ -1,8 +1,8 @@
 {
-  "name": "plugin-sample-vite",
+  "name": "sy-doc-context",
   "author": "frostime",
-  "url": "https://github.com/frostime/plugin-sample-vite",
-  "version": "0.3.5",
+  "url": "https://github.com/frostime/sy-doc-context",
+  "version": "0.1.0",
   "minAppVersion": "3.0.12",
   "backends": [
     "windows",
@@ -19,12 +19,12 @@
     "desktop-window"
   ],
   "displayName": {
-    "en_US": "Plugin sample with vite",
-    "zh_CN": "插件样例 vite 版"
+    "en_US": "Document Context",
+    "zh_CN": "文档上下文"
   },
   "description": {
-    "en_US": "SiYuan plugin sample with vite",
-    "zh_CN": "使用 vite 开发的思源插件样例"
+    "en_US": "Quickly display the parent document, child document, and sibling document of the current document in the document tree.",
+    "zh_CN": "快速显示当前文档在文档树中的父文档、子文裆和同级文档等信息"
   },
   "readme": {
     "en_US": "README.md",
@@ -36,6 +36,6 @@
     ]
   },
   "keywords": [
-    "plugin", "sample", "插件样例"
+    "plugin", "document", "document tree"
   ]
 }
