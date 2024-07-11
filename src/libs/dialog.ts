@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2024 by frostime. All Rights Reserved.
+ * @Author       : frostime
+ * @Date         : 2024-06-10 14:49:54
+ * @FilePath     : /src/libs/dialog.ts
+ * @LastEditTime : 2024-07-11 15:04:33
+ * @Description  : 
+ */
 import { Dialog } from "siyuan";
 
 export const simpleDialog = (args: {
@@ -6,7 +14,7 @@ export const simpleDialog = (args: {
 }) => {
     const dialog = new Dialog({
         title: args.title,
-        content: `<div class="fn__flex fn__flex dialog-content"/>`,
+        content: `<div class="fn__flex-1 fn__flex dialog-content"/>`,
         width: args.width,
         height: args.height
     });

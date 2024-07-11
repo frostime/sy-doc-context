@@ -5,6 +5,7 @@ import { viteStaticCopy } from "vite-plugin-static-copy"
 import livereload from "rollup-plugin-livereload"
 import zipPack from "vite-plugin-zip-pack";
 import fg from 'fast-glob';
+import solidPlugin from 'vite-plugin-solid';
 
 import vitePluginYamlI18n from './yaml-plugin';
 
@@ -24,6 +25,8 @@ export default defineConfig({
     },
 
     plugins: [
+
+        solidPlugin(),
 
         vitePluginYamlI18n({
             inDir: 'public/i18n',
