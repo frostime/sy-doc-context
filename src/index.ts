@@ -5,7 +5,7 @@ import "@/index.scss";
 import { load, unload } from './doc-context';
 
 
-export default class PluginSample extends Plugin {
+export default class DocContextPlugin extends Plugin {
 
     onload() {
         load(this);
