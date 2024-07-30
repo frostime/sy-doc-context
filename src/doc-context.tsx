@@ -3,15 +3,15 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:55:35
  * @FilePath     : /src/doc-context.tsx
- * @LastEditTime : 2024-07-11 15:06:54
+ * @LastEditTime : 2024-07-30 21:18:28
  * @Description  : 
  */
-import { For, Show } from 'solid-js';
+import { For, JSXElement, Show } from 'solid-js';
 import { render } from 'solid-js/web';
-import { type Plugin, type Dialog, openTab } from "siyuan";
+import { type Plugin, type Dialog, openTab, confirm } from "siyuan";
 
 import { simpleDialog } from "@/libs/dialog";
-import { getBlockByID, listDocsByPath } from "@/api";
+import { getBlockByID, listDocsByPath, createDocWithMd } from "@/api";
 import { getActiveDoc, getNotebook } from "@/utils";
 
 
@@ -21,7 +21,8 @@ let I18n: any = {
     parent: '上级文档',
     children: '子文档',
     siblings: '同级文档',
-    no: '无'
+    no: '无',
+    NewDoc: '新建文档'
 }
 
 
@@ -50,11 +51,12 @@ const createContext = async () => {
     let doc = await getBlockByID(docId);
     let parent = await getParentDocument(doc.path);
     let childrenPromise = listChildDocs(doc);
-    let parentNode = parent ?? {
+    parent = parent ?? {
         box: doc.box,
         path: '/',
-    };
-    let siblingsPromise = listChildDocs(parentNode);
+        hpath: ''
+    } as Block;
+    let siblingsPromise = listChildDocs(parent);
     let _ = await Promise.all([childrenPromise, siblingsPromise]);
     let children = _[0];
     let siblings = _[1];
@@ -98,7 +100,7 @@ const A = (props: { id: string, hightlight?: boolean, children: any, dialog: Dia
 
 
 const DocContextComponent = (props: {
-    doc: any, parent: any, children: any[], siblings: any[], docPaths: any[], dialog: Dialog
+    doc: Block, parent: Block, children: Block[], siblings: Block[], docPaths: any[], dialog: Dialog
 }) => {
     const { doc, parent, children, siblings, docPaths } = props;
 
@@ -115,6 +117,78 @@ const DocContextComponent = (props: {
         props.dialog.destroy();
     }
 
+    const newDoc = (hpath: string) => {
+        confirm('Confirm?', `${I18n.NewDoc}: ${hpath}`, async () => {
+            let docId = await createDocWithMd(doc.box, hpath, '');
+            openTab({
+                app: plugin_?.app,
+                doc: {
+                    id: docId
+                }
+            });
+            props.dialog.destroy();
+        });
+    }
+
+    const newChild = () => {
+        let newPath = `${doc.hpath}/Untitled`;
+        console.log(newPath);
+        newDoc(newPath);
+    }
+
+    const newSibling = () => {
+        let newPath = `${parent.hpath}/Untitled`;
+        console.log(newPath);
+        newDoc(newPath);
+    }
+
+    const HR = () => (
+        <hr
+            style={{
+                margin: '5px 0'
+            }}
+        />
+    );
+
+    const DocList = (p: { docs: Block[] }) => (
+        <Show when={p.docs.length > 0} fallback={<p>{I18n.no}</p>}>
+            <ol>
+                <For each={p.docs}>
+                    {(item) => {
+                        let hightlight = item.id === doc.id;
+                        return (
+                            <li>
+                                <A hightlight={hightlight} id={item.id} dialog={props.dialog}>
+                                    {item.name.replace('.sy', '')}
+                                </A>
+                            </li>
+                        );
+                    }}
+                </For>
+            </ol>
+        </Show>
+    );
+
+    const NewDocBtn = (props: { children: JSXElement, onClick: () => void }) => (
+        <div
+            style={{
+                "text-align": "right", "font-size": "15px",
+                display: 'flex', flex: 1,
+            }}
+        >
+            <button
+                class="b3-button"
+                onclick={props.onClick}
+                style={{
+                    "margin-left": '10px',
+                    'line-height': '17px'
+                }}
+            >
+                {props.children}
+            </button>
+        </div>
+    );
+
     return (
         <section class="doc-context item__readme b3-typography fn__flex-1" style="margin: 1em;">
             <p>🍞
@@ -126,40 +200,38 @@ const DocContextComponent = (props: {
             <p class="btn-focus" onClick={focus}>
                 🎯 {I18n.focus}
             </p>
-            <h4>⬆️ {I18n.parent}</h4>
-            <Show when={parent} fallback={<p>{I18n.no}</p>}>
-                <p><A id={parent.id} dialog={props.dialog}>{parent.content}</A></p>
-            </Show>
-            <h4>⬇️ {I18n.children}</h4>
-            <Show when={children.length > 0} fallback={<p>{I18n.no}</p>}>
-                <ol>
-                    <For each={children}>
-                        {(item) => (
-                            <li><A id={item.id} dialog={props.dialog}>{item.name.replace('.sy', '')}</A></li>
-                        )}
-                    </For>
-                </ol>
-            </Show>
-            <h4>↔️ {I18n.siblings}</h4>
-            <Show when={siblings.length > 0} fallback={<p>{I18n.no}</p>}>
-                <ol>
-                    <For each={siblings}>
-                        {(item) => {
-                            let hightlight = item.id === doc.id;
-                            return (
-                                <li>
-                                    <A hightlight={hightlight} id={item.id} dialog={props.dialog}>
-                                        {item.name.replace('.sy', '')}
-                                    </A>
-                                </li>
-                            );
-                        }}
-                    </For>
-                </ol>
-            </Show>
+
+            <HR />
+
+            <div style={{ display: 'flex', 'align-items': 'center' }}>
+                <h4 style={{ flex: 2 }}>⬆️ {I18n.parent}</h4>
+                <div style={{ flex: 1, 'margin-left': '10px' }}>
+                    <Show when={parent} fallback={<p>{I18n.no}</p>}>
+                        <p><A id={parent.id} dialog={props.dialog}>{parent.content}</A></p>
+                    </Show>
+                </div>
+            </div>
+
+            <HR />
+
+            <div style={{ display: 'flex', 'align-items': 'center' }}>
+                <h4 style={{ flex: 2 }}>↔️ {I18n.siblings}</h4>
+                <NewDocBtn onClick={newSibling}>📬 {I18n.NewDoc}</NewDocBtn>
+            </div>
+            <DocList docs={siblings} />
+
+            <HR />
+
+            <div style={{ display: 'flex', 'align-items': 'center' }}>
+                <h4 style={{ flex: 2 }}>⬇️ {I18n.children}</h4>
+                <NewDocBtn onClick={newChild}>📬 {I18n.NewDoc}</NewDocBtn>
+            </div>
+            <DocList docs={children} />
+
         </section>
     );
 };
+
 
 let plugin_: Plugin;
 // const keymapTag = window.siyuan.config.keymap.general.tag;

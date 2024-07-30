@@ -34,3 +34,13 @@ export async function getBlockByID(blockId: string): Promise<Block> {
     let data = await sql(sqlScript);
     return data[0];
 }
+
+export async function createDocWithMd(notebook: NotebookId, path: string, markdown: string): Promise<DocumentId> {
+    let data = {
+        notebook: notebook,
+        path: path,
+        markdown: markdown,
+    };
+    let url = '/api/filetree/createDocWithMd';
+    return request(url, data);
+}
