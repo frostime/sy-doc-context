@@ -3,7 +3,7 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:55:35
  * @FilePath     : /src/doc-context.tsx
- * @LastEditTime : 2024-07-30 21:18:28
+ * @LastEditTime : 2024-08-19 12:59:00
  * @Description  : 
  */
 import { For, JSXElement, Show } from 'solid-js';
@@ -11,8 +11,8 @@ import { render } from 'solid-js/web';
 import { type Plugin, type Dialog, openTab, confirm } from "siyuan";
 
 import { simpleDialog } from "@/libs/dialog";
-import { getBlockByID, listDocsByPath, createDocWithMd } from "@/api";
-import { getActiveDoc, getNotebook } from "@/utils";
+import { getBlockByID, createDocWithMd } from "@/api";
+import { getActiveDoc, getNotebook, getParentDocument, listChildDocs } from "@/utils";
 
 
 let I18n: any = {
@@ -25,23 +25,6 @@ let I18n: any = {
     NewDoc: '新建文档'
 }
 
-
-async function getParentDocument(path: string) {
-    let pathArr = path.split("/").filter((item) => item != "");
-    pathArr.pop();
-    if (pathArr.length == 0) {
-        return null;
-    } else {
-        let id = pathArr[pathArr.length - 1];
-        return getBlockByID(id);
-    }
-}
-
-const listChildDocs = async (doc: any) => {
-    let data = await listDocsByPath(doc.box, doc.path);
-    // console.log(data);
-    return data?.files;
-}
 
 const createContext = async () => {
     let docId = getActiveDoc();
