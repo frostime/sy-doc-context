@@ -2,7 +2,7 @@
   "name": "sy-doc-context",
   "author": "frostime",
   "url": "https://github.com/frostime/sy-doc-context",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "minAppVersion": "3.0.12",
   "backends": [
     "windows",
@@ -24,8 +24,8 @@
     "zh_CN": "文档上下文"
   },
   "description": {
-    "en_US": "Quickly display the parent document, child document, and sibling document of the current document in the document tree.",
-    "zh_CN": "快速显示当前文档在文档树中的父文档、子文裆和同级文档等信息"
+    "en_US": "Quickly display the parent document, child document, and sibling document of the current document in the document tree. And use shortcut keys to quickly jump",
+    "zh_CN": "快速显示当前文档在文档树中的父文档、子文裆和同级文档等信息; 并使用快捷键进行快速跳转"
   },
   "readme": {
     "en_US": "README.md",
@@ -37,6 +37,6 @@
     ]
   },
   "keywords": [
-    "plugin", "document", "document tree"
+    "plugin", "document", "document tree", "快捷键", "shortcut", "hotkey"
   ]
 }

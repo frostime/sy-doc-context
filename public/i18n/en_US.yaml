@@ -6,3 +6,21 @@ children: 'Child Documents'
 siblings: 'Sibling Documents'
 no: 'Empty'
 NewDoc: 'New Document'
+setting:
+  parentChildCommand:
+    title: 'Enable Parent-Child Document Shortcuts'
+    description: 'Enable to use the shortcut Ctrl+↑ to jump to the parent document, Ctrl+↓ to jump to the child document'
+  siblingCommand:
+    title: 'Enable Sibling Document Shortcuts'
+    description: 'Enable to use the shortcut Ctrl+← to jump to the previous document, Ctrl+→ to jump to the next document'
+  speedControl:
+    title: 'Enable Speed Control'
+    description: 'Enable to close the previously opened document if the interval between switching documents is too short'
+  duration:
+    title: 'Speed Control Interval'
+    description: 'Interval time for switching documents, in milliseconds'
+messages:
+  noParentDoc: 'No Parent Document'
+  noChildDoc: 'No Child Document'
+  jumpToFirstDoc: 'Jump to the first document'
+  jumpToLastDoc: 'Jump to the last document'

@@ -6,3 +6,21 @@ children: '子文档'
 siblings: '同级文档'
 no: '无'
 NewDoc: '新建文档'
+setting:
+  parentChildCommand:
+    title: '启用切换父子文档快捷键'
+    description: '开启后，使用快捷键 Ctrl+↑ 跳转到父文档，Ctrl+↓ 跳转到子文档'
+  siblingCommand:
+    title: '启用切换同级文档快捷键'
+    description: '开启后，使用快捷键 Ctrl+← 跳转到前一篇文档，Ctrl+→ 跳转到后一篇文档'
+  speedControl:
+    title: '启用频率控制'
+    description: '开启后，连续点击切换文档按钮时，如果间隔时间过短，就关闭上一次打开的文档'
+  duration:
+    title: '频率控制间隔时间'
+    description: '切换文档间隔时间，单位为毫秒'
+messages:
+  noParentDoc: '无父文档'
+  noChildDoc: '无子文裆'
+  jumpToFirstDoc: '跳转第一篇文档'
+  jumpToLastDoc: '跳转最后一篇文档'

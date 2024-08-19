@@ -3,7 +3,7 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:49:54
  * @FilePath     : /src/index.ts
- * @LastEditTime : 2024-08-19 14:44:49
+ * @LastEditTime : 2024-08-19 14:54:21
  * @Description  : 
  */
 import {
@@ -65,7 +65,7 @@ const useCommand = (plugin: DocContextPlugin) => {
         let siblings: { id: string, path: string }[] = await getSibling(path, box);
         let index = siblings.findIndex(sibling => sibling.path === path);
         if ((delta < 0 && index == 0) || (delta > 0 && index == siblings.length - 1)) {
-            showMessage(`跳转${delta < 0 ? '最后' : '第'}一篇文档`);
+            showMessage(delta < 0 ? i18n.messages.jumpToLastDoc : i18n.messages.jumpToFirstDoc);
         }
 
         let postAction = speedControl();
@@ -86,7 +86,7 @@ const useCommand = (plugin: DocContextPlugin) => {
         let doc = await getBlockByID(docId);
         let parent = await getParentDocument(doc.path);
         if (!parent) {
-            showMessage('无父文档');
+            showMessage(i18n.messages.noParentDoc);
             return;
         }
 
@@ -107,7 +107,7 @@ const useCommand = (plugin: DocContextPlugin) => {
         let doc = await getBlockByID(docId);
         let children = await listChildDocs(doc);
         if (children.length === 0) {
-            showMessage('无子文裆');
+            showMessage(i18n.messages.noChildDoc);
             return;
         }
 
@@ -190,43 +190,52 @@ export default class DocContextPlugin extends Plugin {
             plugin: this,
             name: 'doc-context',
             callback: (data) => {
-                this.commandHook.updateDuration(data.duration);
-                this.commandHook.toggleSpeedControl(data.speedControl);
-                this.commandHook.toggleParentChildCommand(data.parentChildCommand);
-                this.commandHook.toggleSiblingCommand(data.siblingCommand);
-            }
+                this.updateState(data);
+            },
+            height: '600px'
         });
 
+        let i18n = this.i18n;
+
         this.utils.addItem({
-            title: '启用切换父子文档快捷键',
-            description: '开启后，使用快捷键 Ctrl+↑ 跳转到父文档，Ctrl+↓ 跳转到子文档',
+            title: i18n.setting.parentChildCommand.title,
+            description: i18n.setting.parentChildCommand.description,
             type: 'checkbox',
             key: 'parentChildCommand',
             value: false
         });
         this.utils.addItem({
-            title: '启用切换同级文档快捷键',
-            description: '开启后，使用快捷键 Ctrl+← 跳转到前一篇文档，Ctrl+→ 跳转到后一篇文档',
+            title: i18n.setting.siblingCommand.title,
+            description: i18n.setting.siblingCommand.description,
             type: 'checkbox',
             key: 'siblingCommand',
             value: false
         });
         this.utils.addItem({
-            title: '启用频率控制',
-            description: '开启后，连续点击切换文档按钮时，如果间隔时间过短，就关闭上一次打开的文档',
+            title: i18n.setting.speedControl.title,
+            description: i18n.setting.speedControl.description,
             type: 'checkbox',
             key: 'speedControl',
             value: false
         });
         this.utils.addItem({
-            title: '频率控制间隔时间',
-            description: '切换文档间隔时间，单位为毫秒',
+            title: i18n.setting.duration.title,
+            description: i18n.setting.duration.description,
             type: 'number',
             key: 'duration',
             value: 1000
         });
 
         await this.utils.load();
+        let data = this.utils.dump();
+        this.updateState(data);
+    }
+
+    private updateState(data) {
+        this.commandHook.updateDuration(data.duration);
+        this.commandHook.toggleSpeedControl(data.speedControl);
+        this.commandHook.toggleParentChildCommand(data.parentChildCommand);
+        this.commandHook.toggleSiblingCommand(data.siblingCommand);
     }
 
     onunload(): void {
