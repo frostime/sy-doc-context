@@ -3,7 +3,7 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:49:54
  * @FilePath     : /src/index.ts
- * @LastEditTime : 2024-08-19 14:13:32
+ * @LastEditTime : 2024-08-19 14:44:49
  * @Description  : 
  */
 import {
@@ -17,15 +17,24 @@ import "@/index.scss";
 import { load, unload } from './doc-context';
 import { getActiveDoc, getParentDocument, listChildDocs, getSibling } from "./utils";
 import { getBlockByID } from "./api";
+import { SettingUtils } from "./libs/setting-utils";
 
 
 const useCommand = (plugin: DocContextPlugin) => {
     let app: App = plugin.app;
+    let i18n = plugin.i18n;
 
     let lastTriggered: Date = new Date();
     let timeDuration = 1000;
 
     let doSpeedControl = true;
+
+    const KeymapConfig = window.siyuan.config.keymap;
+    const KeyCollapse = KeymapConfig.editor.general.collapse;
+    const KeyExpand = KeymapConfig.editor.general.expand;
+
+    const KeyCollapseDefault = KeyCollapse.custom || KeyCollapse.default;
+    const KeyExpandDefault = KeyExpand.custom || KeyExpand.default;
 
     /**
      * 控制时间，如果 Action 间隔太短，就关掉中键的文档
@@ -136,9 +145,13 @@ const useCommand = (plugin: DocContextPlugin) => {
                     hotkey: '⌘↓',
                     callback: async () => goToChild()
                 });
+                KeyCollapse.custom = '';
+                KeyExpand.custom = '';
             } else {
                 plugin.delCommand('fmisc::parent-doc');
                 plugin.delCommand('fmisc::child-doc');
+                KeyCollapse.custom = KeyCollapseDefault;
+                KeyExpand.custom = KeyExpandDefault;
             }
         },
         toggleSiblingCommand: (enable: boolean) => {
@@ -167,10 +180,53 @@ const useCommand = (plugin: DocContextPlugin) => {
 export default class DocContextPlugin extends Plugin {
 
     commandHook: ReturnType<typeof useCommand>;
+    utils: SettingUtils;
 
-    onload() {
+    async onload() {
         load(this);
         this.commandHook = useCommand(this);
+
+        this.utils = new SettingUtils({
+            plugin: this,
+            name: 'doc-context',
+            callback: (data) => {
+                this.commandHook.updateDuration(data.duration);
+                this.commandHook.toggleSpeedControl(data.speedControl);
+                this.commandHook.toggleParentChildCommand(data.parentChildCommand);
+                this.commandHook.toggleSiblingCommand(data.siblingCommand);
+            }
+        });
+
+        this.utils.addItem({
+            title: '启用切换父子文档快捷键',
+            description: '开启后，使用快捷键 Ctrl+↑ 跳转到父文档，Ctrl+↓ 跳转到子文档',
+            type: 'checkbox',
+            key: 'parentChildCommand',
+            value: false
+        });
+        this.utils.addItem({
+            title: '启用切换同级文档快捷键',
+            description: '开启后，使用快捷键 Ctrl+← 跳转到前一篇文档，Ctrl+→ 跳转到后一篇文档',
+            type: 'checkbox',
+            key: 'siblingCommand',
+            value: false
+        });
+        this.utils.addItem({
+            title: '启用频率控制',
+            description: '开启后，连续点击切换文档按钮时，如果间隔时间过短，就关闭上一次打开的文档',
+            type: 'checkbox',
+            key: 'speedControl',
+            value: false
+        });
+        this.utils.addItem({
+            title: '频率控制间隔时间',
+            description: '切换文档间隔时间，单位为毫秒',
+            type: 'number',
+            key: 'duration',
+            value: 1000
+        });
+
+        await this.utils.load();
     }
 
     onunload(): void {
