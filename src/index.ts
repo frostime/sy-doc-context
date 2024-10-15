@@ -15,7 +15,7 @@ import {
 } from "siyuan";
 import "@/index.scss";
 import { load, unload } from './doc-context';
-import { getActiveDoc, getParentDocument, listChildDocs, getSibling } from "./utils";
+import { getActiveDoc, getParentDocument, listChildDocs, getSibling, isMobile } from "./utils";
 import { getBlockByID } from "./api";
 import { SettingUtils } from "./libs/setting-utils";
 
@@ -184,7 +184,9 @@ export default class DocContextPlugin extends Plugin {
 
     async onload() {
         load(this);
-        this.commandHook = useCommand(this);
+        if (!isMobile) {
+            this.commandHook = useCommand(this);
+        }
 
         this.utils = new SettingUtils({
             plugin: this,
@@ -232,6 +234,7 @@ export default class DocContextPlugin extends Plugin {
     }
 
     private updateState(data) {
+        if (!this.commandHook) return;
         this.commandHook.updateDuration(data.duration);
         this.commandHook.toggleSpeedControl(data.speedControl);
         this.commandHook.toggleParentChildCommand(data.parentChildCommand);

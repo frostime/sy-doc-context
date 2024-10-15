@@ -3,16 +3,16 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:55:35
  * @FilePath     : /src/doc-context.tsx
- * @LastEditTime : 2024-08-19 12:59:00
+ * @LastEditTime : 2024-10-15 22:00:24
  * @Description  : 
  */
 import { For, JSXElement, Show } from 'solid-js';
 import { render } from 'solid-js/web';
-import { type Plugin, type Dialog, openTab, confirm } from "siyuan";
+import { type Plugin, type Dialog, openTab, confirm, openMobileFileById, getFrontend } from "siyuan";
 
 import { simpleDialog } from "@/libs/dialog";
 import { getBlockByID, createDocWithMd } from "@/api";
-import { getActiveDoc, getNotebook, getParentDocument, listChildDocs } from "@/utils";
+import { getActiveDoc, getNotebook, getParentDocument, isMobile, listChildDocs } from "@/utils";
 
 
 let I18n: any = {
@@ -60,12 +60,16 @@ const createContext = async () => {
 const A = (props: { id: string, hightlight?: boolean, children: any, dialog: Dialog }) => {
 
     const open = () => {
-        openTab({
-            app: plugin_?.app,
-            doc: {
-                id: props.id
-            }
-        });
+        if (!isMobile) {
+            openTab({
+                app: plugin_?.app,
+                doc: {
+                    id: props.id
+                }
+            });
+        } else {
+            openMobileFileById(plugin_?.app, props.id);
+        }
         props.dialog.destroy();
     }
 
@@ -135,7 +139,7 @@ const DocContextComponent = (props: {
 
     const DocList = (p: { docs: Block[] }) => (
         <Show when={p.docs.length > 0} fallback={<p>{I18n.no}</p>}>
-            <ol>
+            <ol data-is-mobile={isMobile}>
                 <For each={p.docs}>
                     {(item) => {
                         let hightlight = item.id === doc.id;
@@ -180,7 +184,9 @@ const DocContextComponent = (props: {
                     return (<> / <A id={d.id.replace('.sy', '')} dialog={props.dialog}>{d.title}</A></>);
                 })}
             </p>
-            <p class="btn-focus" onClick={focus}>
+            <p class="btn-focus" onClick={focus} style={{
+                'display': isMobile ? 'none' : ''
+            }}>
                 🎯 {I18n.focus}
             </p>
 
@@ -228,8 +234,8 @@ export const load = (plugin: Plugin) => {
     plugin_ = plugin;
     I18n = plugin.i18n;
     plugin.addCommand({
-        langKey: 'F-Misc::DocContext',
-        langText: `F-misc ${I18n.name}`,
+        langKey: 'DocContext',
+        langText: `${I18n.name}`,
         hotkey: Keymap,
         callback: async () => {
             if (document.querySelector('.doc-context')) return;

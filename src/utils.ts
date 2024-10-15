@@ -3,10 +3,14 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:57:19
  * @FilePath     : /src/utils.ts
- * @LastEditTime : 2024-08-19 13:00:28
+ * @LastEditTime : 2024-10-15 21:42:11
  * @Description  : 
  */
+import { getFrontend } from "siyuan";
 import { getBlockByID, listDocsByPath } from "./api";
+
+const frontend = getFrontend();
+export const isMobile = frontend === 'mobile';
 
 export const getNotebook = (boxId: string): Notebook => {
     let notebooks: Notebook[] = window.siyuan.notebooks;
@@ -17,7 +21,8 @@ export const getNotebook = (boxId: string): Notebook => {
     }
 }
 
-export function getActiveDoc() {
+
+const getActiveDocOnDesktop = () => {
     let tab = document.querySelector("div.layout__wnd--active ul.layout-tab-bar>li.item--focus");
     let dataId: string = tab?.getAttribute("data-id");
     if (!dataId) {
@@ -32,6 +37,25 @@ export function getActiveDoc() {
     const eleTitle = activeTab.querySelector(".protyle-title");
     let docId = eleTitle?.getAttribute("data-node-id");
     return docId;
+}
+
+const getActiveDocOnMobile = () => {
+    const editor = document.querySelector("#editor");
+    if (!editor) {
+        return;
+    }
+    const eleTitle = editor.querySelector(".protyle-content .protyle-title");
+    let docId = eleTitle?.getAttribute("data-node-id");
+    return docId;
+}
+
+export function getActiveDoc() {
+    const frontend = getFrontend();
+    if (frontend === 'mobile') {
+        return getActiveDocOnMobile();
+    } else {
+        return getActiveDocOnDesktop();
+    }
 }
 
 export const html2ele = (html: string): DocumentFragment => {

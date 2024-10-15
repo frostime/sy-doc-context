@@ -5,10 +5,18 @@ section.doc-context {
         color: var(--b3-theme-primary);
         cursor: pointer;
     }
+
     ol {
         font-size: 18px;
-        column-gap: 30px;
-        column-count: 3;
+
+        &[data-is-mobile="false"] {
+            column-gap: 30px;
+            column-count: 3;
+        }
+        &[data-is-mobile="true"] {
+            column-count: 2;
+            column-gap: 10px;
+        }
     }
 
     span.anchor {
