@@ -6,6 +6,7 @@ children: '子文档'
 siblings: '同级文档'
 no: '无'
 NewDoc: '新建文档'
+Outline: '文档大纲'
 setting:
   parentChildCommand:
     title: '启用切换父子文档快捷键'

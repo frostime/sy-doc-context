@@ -9,6 +9,7 @@ This plugin provides the functionality to quickly display the contextual informa
 - Display Parent Document: Shows the parent document of the current document.
 - Display Child Documents: Lists the child documents of the current document.
 - Display Sibling Documents: Lists other documents at the same level as the current document.
+- Dispaly Outline: Lists the outline of the document.
 
 ### Shortcut Navigation
 

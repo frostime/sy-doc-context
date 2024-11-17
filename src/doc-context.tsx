@@ -3,15 +3,15 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:55:35
  * @FilePath     : /src/doc-context.tsx
- * @LastEditTime : 2024-10-15 22:00:24
+ * @LastEditTime : 2024-11-17 20:30:14
  * @Description  : 
  */
-import { For, JSXElement, Show } from 'solid-js';
+import { createSignal, For, JSXElement, onMount, Show } from 'solid-js';
 import { render } from 'solid-js/web';
 import { type Plugin, type Dialog, openTab, confirm, openMobileFileById, getFrontend } from "siyuan";
 
 import { simpleDialog } from "@/libs/dialog";
-import { getBlockByID, createDocWithMd } from "@/api";
+import { getBlockByID, createDocWithMd, request } from "@/api";
 import { getActiveDoc, getNotebook, getParentDocument, isMobile, listChildDocs } from "@/utils";
 
 
@@ -57,20 +57,22 @@ const createContext = async () => {
     return { doc, parent, children, siblings, docPaths };
 }
 
-const A = (props: { id: string, hightlight?: boolean, children: any, dialog: Dialog }) => {
+
+const A = (props: { id: string, hightlight?: boolean, children: any, dialog: Dialog, actions?: any }) => {
 
     const open = () => {
-        if (!isMobile) {
-            openTab({
-                app: plugin_?.app,
-                doc: {
-                    id: props.id
-                }
-            });
-        } else {
-            openMobileFileById(plugin_?.app, props.id);
-        }
+        openTab({
+            app: plugin_?.app,
+            doc: {
+                id: props.id,
+                action: props.actions
+            }
+        });
         props.dialog.destroy();
+        const ele = document.querySelector(`div[data-node-id="${props.id}"]`);
+        if (ele) {
+            ele.scrollIntoView();
+        }
     }
 
     return (
@@ -83,6 +85,58 @@ const A = (props: { id: string, hightlight?: boolean, children: any, dialog: Dia
             </span>
         </>
     )
+}
+
+const OutlineComponent = (props: { docId: string, dialog: Dialog }) => {
+    const [outline, setOutline] = createSignal([]);
+
+    // 转换数据结构，保留层级关系
+    const iterate = (data) => {
+        return data.map(item => ({
+            depth: item.depth,
+            name: item.name || item.content,
+            id: item.id,
+            children: item.count > 0 ? iterate(item.blocks ?? item.children) : []
+        }));
+    }
+
+    // 递归渲染组件
+    const RenderItem = (propsRi: { items: any[] }) => {
+        return (
+            <ul style={{ "list-style-type": "disc", "margin": "0.5em 0" }}>
+                <For each={propsRi.items}>
+                    {(item) => (
+                        <li>
+                            <A id={item.id} dialog={props.dialog}>
+                                <span innerHTML={item.name} />
+                            </A>
+                            <Show when={item.children.length > 0}>
+                                <RenderItem items={item.children} />
+                            </Show>
+                        </li>
+                    )}
+                </For>
+            </ul>
+        );
+    }
+
+    onMount(async () => {
+        let ans = await request('/api/outline/getDocOutline', {
+            id: props.docId
+        });
+        setOutline(iterate(ans));
+    });
+
+    return (
+        <Show when={outline().length > 0} fallback={<p>{I18n.no}</p>}>
+            <div class="outline-container" style={{
+                // "padding-left": "1em",
+                // "border-left": "2px solid var(--b3-border-color)"
+            }}>
+                <RenderItem items={outline()} />
+            </div>
+        </Show>
+    );
 }
 
 
@@ -217,6 +271,11 @@ const DocContextComponent = (props: {
             </div>
             <DocList docs={children} />
 
+            <div style={{ display: 'flex', 'align-items': 'center' }}>
+                <h4>📇 {I18n.Outline}</h4>
+            </div>
+            <OutlineComponent docId={doc.id} dialog={props.dialog} />
+
         </section>
     );
 };
@@ -254,6 +313,7 @@ export const load = (plugin: Plugin) => {
             render(() => DocContextComponent({ ...context, dialog }), element);
             let container = dialog.element.querySelector('.b3-dialog__container') as HTMLElement;
             container.style.setProperty('max-width', '80%');
+            container.style.setProperty('min-width', '40%');
             container.style.setProperty('max-height', '75%');
         }
     });

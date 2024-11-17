@@ -6,6 +6,7 @@ children: 'Child Documents'
 siblings: 'Sibling Documents'
 no: 'Empty'
 NewDoc: 'New Document'
+Outline: 'Outline'
 setting:
   parentChildCommand:
     title: 'Enable Parent-Child Document Shortcuts'
