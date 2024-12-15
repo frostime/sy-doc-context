@@ -18,3 +18,12 @@ This plugin provides the functionality to quickly display the contextual informa
 - **Parent-Child Document Shortcuts**: Use `Ctrl+↑` to jump to the parent document and `Ctrl+↓` to jump to the child document (overrides the default SiYuan Expand/Collapse shortcuts).
 - **Sibling Document Shortcuts**: Use `Ctrl+←` to jump to the previous document and `Ctrl+→` to jump to the next document.
 - **Speed Control**: When enabled, automatically closes the previously opened document if the interval between document switches is too short, preventing the opening of too many documents during rapid shortcut usage.
+
+#### Note!
+
+* The default Ctrl+↑ and Ctrl+↓ are built-in shortcuts in SiYuan, so the plugin will forcibly override these two default shortcuts of SiYuan.
+* If you want to continue using the built-in shortcuts of SiYuan, you can:
+  1. Turn off **Parent-Child Document Shortcuts** in plugin settings.
+  2. Or, alternatively turn off **Override Default Ctrl+↑ and Ctrl+↓**; then, in SiYuan's keymap settings, assign your preferred shortcuts for "Parent Document" and "Child Document" for this plugin.
+
+![](asset/keymap.png)

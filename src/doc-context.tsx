@@ -3,16 +3,18 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:55:35
  * @FilePath     : /src/doc-context.tsx
- * @LastEditTime : 2024-11-17 20:30:14
+ * @LastEditTime : 2024-12-15 12:25:45
  * @Description  : 
  */
 import { createSignal, For, JSXElement, onMount, Show } from 'solid-js';
 import { render } from 'solid-js/web';
-import { type Plugin, type Dialog, openTab, confirm, openMobileFileById, getFrontend } from "siyuan";
+import { type Plugin, type Dialog, openTab, confirm } from "siyuan";
 
 import { simpleDialog } from "@/libs/dialog";
 import { getBlockByID, createDocWithMd, request } from "@/api";
 import { getActiveDoc, getNotebook, getParentDocument, isMobile, listChildDocs } from "@/utils";
+
+import type DocContextPlugin from './index';
 
 
 let I18n: any = {
@@ -103,7 +105,7 @@ const OutlineComponent = (props: { docId: string, dialog: Dialog }) => {
     // 递归渲染组件
     const RenderItem = (propsRi: { items: any[] }) => {
         return (
-            <ul style={{ "list-style-type": "disc", "margin": "0.5em 0" }}>
+            <ul>
                 <For each={propsRi.items}>
                     {(item) => (
                         <li>
@@ -129,10 +131,7 @@ const OutlineComponent = (props: { docId: string, dialog: Dialog }) => {
 
     return (
         <Show when={outline().length > 0} fallback={<p>{I18n.no}</p>}>
-            <div class="outline-container" style={{
-                // "padding-left": "1em",
-                // "border-left": "2px solid var(--b3-border-color)"
-            }}>
+            <div class="outline-container">
                 <RenderItem items={outline()} />
             </div>
         </Show>
@@ -193,7 +192,9 @@ const DocContextComponent = (props: {
 
     const DocList = (p: { docs: Block[] }) => (
         <Show when={p.docs.length > 0} fallback={<p>{I18n.no}</p>}>
-            <ol data-is-mobile={isMobile}>
+            <ol data-is-mobile={isMobile} style={{
+                '--column': p.docs.length >= 3? '3' : '2',
+            }}>
                 <For each={p.docs}>
                     {(item) => {
                         let hightlight = item.id === doc.id;
@@ -247,7 +248,7 @@ const DocContextComponent = (props: {
             <HR />
 
             <div style={{ display: 'flex', 'align-items': 'center' }}>
-                <h4 style={{ flex: 2 }}>⬆️ {I18n.parent}</h4>
+                <h5 style={{ flex: 2 }}>⬆️ {I18n.parent}</h5>
                 <div style={{ flex: 1, 'margin-left': '10px' }}>
                     <Show when={parent} fallback={<p>{I18n.no}</p>}>
                         <p><A id={parent.id} dialog={props.dialog}>{parent.content}</A></p>
@@ -258,7 +259,7 @@ const DocContextComponent = (props: {
             <HR />
 
             <div style={{ display: 'flex', 'align-items': 'center' }}>
-                <h4 style={{ flex: 2 }}>↔️ {I18n.siblings}</h4>
+                <h5 style={{ flex: 2 }}>↔️ {I18n.siblings}</h5>
                 <NewDocBtn onClick={newSibling}>📬 {I18n.NewDoc}</NewDocBtn>
             </div>
             <DocList docs={siblings} />
@@ -266,13 +267,13 @@ const DocContextComponent = (props: {
             <HR />
 
             <div style={{ display: 'flex', 'align-items': 'center' }}>
-                <h4 style={{ flex: 2 }}>⬇️ {I18n.children}</h4>
+                <h5 style={{ flex: 2 }}>⬇️ {I18n.children}</h5>
                 <NewDocBtn onClick={newChild}>📬 {I18n.NewDoc}</NewDocBtn>
             </div>
             <DocList docs={children} />
 
             <div style={{ display: 'flex', 'align-items': 'center' }}>
-                <h4>📇 {I18n.Outline}</h4>
+                <h5>📇 {I18n.Outline}</h5>
             </div>
             <OutlineComponent docId={doc.id} dialog={props.dialog} />
 
@@ -287,12 +288,12 @@ const Keymap = '⌥S';
 
 export let name = "DocContext";
 export let enabled = false;
-export const load = (plugin: Plugin) => {
+export const load = (plugin: DocContextPlugin) => {
     if (enabled) return;
     enabled = true;
     plugin_ = plugin;
     I18n = plugin.i18n;
-    plugin.addCommand({
+    plugin.addCommandV2({
         langKey: 'DocContext',
         langText: `${I18n.name}`,
         hotkey: Keymap,
@@ -308,7 +309,7 @@ export const load = (plugin: Plugin) => {
             let dialog = simpleDialog({
                 title: I18n.name,
                 ele: element,
-                width: "800px",
+                width: "900px",
             });
             render(() => DocContextComponent({ ...context, dialog }), element);
             let container = dialog.element.querySelector('.b3-dialog__container') as HTMLElement;
@@ -317,10 +318,4 @@ export const load = (plugin: Plugin) => {
             container.style.setProperty('max-height', '75%');
         }
     });
-}
-
-export const unload = (plugin: Plugin) => {
-    if (!enabled) return;
-    enabled = false;
-    plugin.commands = plugin.commands.filter((command) => command.langKey !== 'F-Misc::DocContext');
 }

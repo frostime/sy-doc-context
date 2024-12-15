@@ -1,22 +1,36 @@
 section.doc-context {
+    --font-size: 19px;
+
     .btn-focus {
-        font-size: 19px;
+        font-size: var(--font-size);
         font-weight: bold;
         color: var(--b3-theme-primary);
         cursor: pointer;
     }
 
     ol {
-        font-size: 18px;
+        font-size: var(--font-size);
+
+        --column: 3;
 
         &[data-is-mobile="false"] {
             column-gap: 30px;
-            column-count: 3;
+            column-count: var(--column);
         }
+
         &[data-is-mobile="true"] {
-            column-count: 2;
+            --column: 1 column-count: var(--column);
             column-gap: 10px;
         }
+    }
+
+    .outline-container>ul {
+        margin-top: 0.5em;
+    }
+
+    .outline-container ul {
+        list-style-type: disc;
+        font-size: var(--font-size);
     }
 
     span.anchor {

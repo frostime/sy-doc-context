@@ -10,7 +10,10 @@ Outline: '文档大纲'
 setting:
   parentChildCommand:
     title: '启用切换父子文档快捷键'
-    description: '开启后，使用快捷键 Ctrl+↑ 跳转到父文档，Ctrl+↓ 跳转到子文档'
+    description: '开启后，使用快捷键 Ctrl+↑ 跳转到父文档，Ctrl+↓ 跳转到子文档</br>默认会屏蔽这两个快捷键在思源中的默认功能，如果你想要换成别的快捷键，请关闭下方的选项然后在「快捷键」中自行更改'
+  overwriteCtrlUpDownKey:
+    title: '<b>⚠️ 覆盖默认 Ctrl+↑ 和 Ctrl+↓</b>'
+    description: '默认的 Ctrl+↑ 和 Ctrl+↓ 为思源内置快捷键（展开和折叠），插件提供的切换父子文档功能想要生效，需要强制覆盖思源的默认快捷键。<br/>如果你依赖于这两个快捷键的默认功能，可以: 1) 关掉这个选项; 2) 在思源的快捷键配置中自行更改 "插件-文档上下文" 中 "Parent Document" 和 "Child Document" 快捷键。'
   siblingCommand:
     title: '启用切换同级文档快捷键'
     description: '开启后，使用快捷键 Ctrl+← 跳转到前一篇文档，Ctrl+→ 跳转到后一篇文档'

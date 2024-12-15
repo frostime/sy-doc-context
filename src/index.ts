@@ -3,7 +3,7 @@
  * @Author       : frostime
  * @Date         : 2024-06-10 14:49:54
  * @FilePath     : /src/index.ts
- * @LastEditTime : 2024-08-19 14:54:21
+ * @LastEditTime : 2024-12-15 12:48:00
  * @Description  : 
  */
 import {
@@ -14,7 +14,7 @@ import {
     ICommandOption,
 } from "siyuan";
 import "@/index.scss";
-import { load, unload } from './doc-context';
+import { load } from './doc-context';
 import { getActiveDoc, getParentDocument, listChildDocs, getSibling, isMobile } from "./utils";
 import { getBlockByID } from "./api";
 import { SettingUtils } from "./libs/setting-utils";
@@ -33,8 +33,8 @@ const useCommand = (plugin: DocContextPlugin) => {
     const KeyCollapse = KeymapConfig.editor.general.collapse;
     const KeyExpand = KeymapConfig.editor.general.expand;
 
-    const KeyCollapseDefault = KeyCollapse.custom || KeyCollapse.default;
-    const KeyExpandDefault = KeyExpand.custom || KeyExpand.default;
+    const KeyCollapseDefault = () => KeyCollapse.custom || KeyCollapse.default;
+    const KeyExpandDefault = () => KeyExpand.custom || KeyExpand.default;
 
     /**
      * 控制时间，如果 Action 间隔太短，就关掉中键的文档
@@ -131,7 +131,7 @@ const useCommand = (plugin: DocContextPlugin) => {
         toggleSpeedControl: (enable: boolean) => {
             doSpeedControl = enable;
         },
-        toggleParentChildCommand: (enable: boolean) => {
+        toggleParentChildCommand: (enable: boolean, overwrite: boolean) => {
             if (enable) {
                 plugin.addCommandV2({
                     langKey: 'fmisc::parent-doc',
@@ -145,13 +145,18 @@ const useCommand = (plugin: DocContextPlugin) => {
                     hotkey: '⌘↓',
                     callback: async () => goToChild()
                 });
-                KeyCollapse.custom = '';
-                KeyExpand.custom = '';
+                if (overwrite) {
+                    KeyCollapse.custom = '';
+                    KeyExpand.custom = '';
+                } else {
+                    KeyCollapse.custom = KeyCollapseDefault();
+                    KeyExpand.custom = KeyExpandDefault();
+                }
             } else {
                 plugin.delCommand('fmisc::parent-doc');
                 plugin.delCommand('fmisc::child-doc');
-                KeyCollapse.custom = KeyCollapseDefault;
-                KeyExpand.custom = KeyExpandDefault;
+                KeyCollapse.custom = KeyCollapseDefault();
+                KeyExpand.custom = KeyExpandDefault();
             }
         },
         toggleSiblingCommand: (enable: boolean) => {
@@ -207,6 +212,14 @@ export default class DocContextPlugin extends Plugin {
             value: false
         });
         this.utils.addItem({
+            title: i18n.setting.overwriteCtrlUpDownKey.title,
+            description: i18n.setting.overwriteCtrlUpDownKey.description,
+            type: 'checkbox',
+            key: 'overwriteCtrlUpDownKey',
+            value: true
+        });
+
+        this.utils.addItem({
             title: i18n.setting.siblingCommand.title,
             description: i18n.setting.siblingCommand.description,
             type: 'checkbox',
@@ -237,12 +250,13 @@ export default class DocContextPlugin extends Plugin {
         if (!this.commandHook) return;
         this.commandHook.updateDuration(data.duration);
         this.commandHook.toggleSpeedControl(data.speedControl);
-        this.commandHook.toggleParentChildCommand(data.parentChildCommand);
+        this.commandHook.toggleParentChildCommand(data.parentChildCommand, data.overwriteCtrlUpDownKey);
         this.commandHook.toggleSiblingCommand(data.siblingCommand);
     }
 
     onunload(): void {
-        unload(this);
+        this.commandHook.toggleParentChildCommand(false, false);
+        this.commandHook.toggleSiblingCommand(false);
     }
 
     addCommandV2(options: ICommandOption): void {

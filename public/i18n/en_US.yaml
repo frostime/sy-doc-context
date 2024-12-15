@@ -10,7 +10,10 @@ Outline: 'Outline'
 setting:
   parentChildCommand:
     title: 'Enable Parent-Child Document Shortcuts'
-    description: 'Enable to use the shortcut Ctrl+↑ to jump to the parent document, Ctrl+↓ to jump to the child document'
+    description: 'Enable to use the shortcut Ctrl+↑ to jump to the parent document, Ctrl+↓ to jump to the child document<br/>The default shortcuts Ctrl+↑ and Ctrl+↓ will be disabled in SiYuan; if you want to customize it , turn off the option below and change the key map in keymap configuration.'
+  overwriteCtrlUpDownKey:
+    title: '<b>⚠️ Override Default Ctrl+↑ and Ctrl+↓</b>'
+    description: 'The default Ctrl+↑ and Ctrl+↓ are built-in shortcuts in SiYuan (expand and collapse). To make the plugin''s parent-child document switching function work, you need to forcibly overwrite the default shortcuts in SiYuan.<br/>If you rely on the default functionality of these shortcuts, you can: 1) Turn off this option; 2) Change the shortcuts for "Parent Document" and "Child Document" in the "Plugin-Document Context" section in SiYuan''s <b>keymap configuration</b>.'
   siblingCommand:
     title: 'Enable Sibling Document Shortcuts'
     description: 'Enable to use the shortcut Ctrl+← to jump to the previous document, Ctrl+→ to jump to the next document'
